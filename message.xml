@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<tryton>
+    <data grouped="1">
+        <record model="ir.message" id="msg_syncthing_synchronized_root">
+            <field name="text">Syncthing can be enabled only on synchronized root tags.</field>
+        </record>
+        <record model="ir.message" id="msg_device_id_unique">
+            <field name="text">A Syncthing device ID can be registered only once.</field>
+        </record>
+    </data>
+</tryton>

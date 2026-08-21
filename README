@@ -1,0 +1,19 @@
+Syncthing
+=========
+
+This module publishes synchronized Brainbow roots to two Syncthing servers.
+Read-only users are configured on the Send Only server and read-write users on
+the Send & Receive server.  Configure both REST APIs in ``trytond.conf``::
+
+    [syncthing]
+    send_only_url = https://syncthing-ro.example:8384
+    send_only_api_key = secret
+    send_receive_url = https://syncthing-rw.example:8384
+    send_receive_api_key = secret
+    timeout = 10
+    verify_ssl = true
+    # ca_file = /etc/ssl/private/syncthing-ca.pem
+
+Users register their device ID, display name and optional addresses from their
+Tryton preferences.  Changes enqueue an idempotent reconciliation of managed
+folders and devices while preserving unrelated Syncthing configuration.

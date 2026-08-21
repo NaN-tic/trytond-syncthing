@@ -1,0 +1,39 @@
+#
+msgid ""
+msgstr "Content-Type: text/plain; charset=utf-8\n"
+
+msgctxt "field:brainbow.tag,syncthing:"
+msgid "Syncthing"
+msgstr "Syncthing"
+
+msgctxt "field:res.user,syncthing_devices:"
+msgid "Syncthing Devices"
+msgstr "Dispositius Syncthing"
+
+msgctxt "field:syncthing.device,addresses:"
+msgid "Addresses"
+msgstr "Adreces"
+
+msgctxt "field:syncthing.device,device_id:"
+msgid "Device ID"
+msgstr "Identificador del dispositiu"
+
+msgctxt "field:syncthing.device,name:"
+msgid "Name"
+msgstr "Nom"
+
+msgctxt "field:syncthing.device,user:"
+msgid "User"
+msgstr "Usuari"
+
+msgctxt "model:ir.message,text:msg_device_id_unique"
+msgid "A Syncthing device ID can be registered only once."
+msgstr "Un identificador de dispositiu Syncthing només es pot registrar una vegada."
+
+msgctxt "model:ir.message,text:msg_syncthing_synchronized_root"
+msgid "Syncthing can be enabled only on synchronized root tags."
+msgstr "Syncthing només es pot activar a les etiquetes arrel sincronitzades."
+
+msgctxt "model:syncthing.device,name:"
+msgid "Syncthing Device"
+msgstr "Dispositiu Syncthing"

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<form col="2">
+    <label name="user"/>
+    <field name="user"/>
+    <label name="name"/>
+    <field name="name"/>
+    <label name="device_id"/>
+    <field name="device_id"/>
+    <label name="active"/>
+    <field name="active"/>
+    <separator name="addresses" colspan="2"/>
+    <field name="addresses" colspan="2"/>
+</form>

@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<tree editable="1">
+    <field name="name"/>
+    <field name="device_id"/>
+    <field name="active"/>
+    <field name="user" tree_invisible="1"/>
+</tree>
