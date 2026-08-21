@@ -1,4 +1,5 @@
 import copy
+from pathlib import Path
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -33,6 +34,7 @@ class TestConfigurationSync(unittest.TestCase):
             tryton_config.set('file_sync', 'path', directory)
 
             config = activate_modules('syncthing')
+            Attachment = Model.get('ir.attachment', config=config)
             Tag = Model.get('brainbow.tag', config=config)
             User = Model.get('res.user', config=config)
 
@@ -45,6 +47,44 @@ class TestConfigurationSync(unittest.TestCase):
             root.read_only_users.append(reader)
             root.read_write_users.append(writer)
             root.save()
+
+            root_directory = Path(directory) / 'Shared'
+            root_directory.mkdir(exist_ok=True)
+            syncthing_directory = root_directory / '.stfolder'
+            syncthing_directory.mkdir()
+            (syncthing_directory / 'syncthing-folder-test.txt').write_text(
+                'Syncthing marker', encoding='utf-8')
+            (root_directory / '.stversions').mkdir()
+            (root_directory / '.stignore').write_text(
+                'Ignored patterns', encoding='utf-8')
+            (root_directory / '.syncthing.notes.tmp').write_text(
+                'Temporary file', encoding='utf-8')
+            stale_tag = Tag(name='.stfolder', parent=root)
+            stale_tag.save()
+            with Transaction().start(
+                    config.database_name, config.user,
+                    context=config.context) as transaction:
+                SyncEntry = Pool(config.database_name).get('file.sync.entry')
+                synchronizer = SyncEntry.get_synchronizer(required=True)
+                self.assertTrue(all(synchronizer.is_ignored_path(path)
+                        for path in [
+                            syncthing_directory,
+                            root_directory / '.stversions',
+                            root_directory / '.stignore',
+                            root_directory / '.syncthing.notes.tmp',
+                            ]))
+                synchronizer.synchronize()
+                transaction.commit()
+            stale_tag.reload()
+            self.assertFalse(stale_tag.active)
+            self.assertFalse(Tag.find([('name', '=', '.stversions')]))
+            self.assertFalse(Attachment.find([
+                        ('name', 'in', [
+                                'syncthing-folder-test.txt',
+                                '.stignore',
+                                '.syncthing.notes.tmp',
+                                ]),
+                        ]))
 
             with Transaction().start(
                     config.database_name, reader.id,

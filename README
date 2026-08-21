@@ -17,3 +17,7 @@ the Send & Receive server.  Configure both REST APIs in ``trytond.conf``::
 Users register their device ID, display name and optional addresses from their
 Tryton preferences.  Changes enqueue an idempotent reconciliation of managed
 folders and devices while preserving unrelated Syncthing configuration.
+
+Syncthing metadata such as ``.stfolder``, ``.stignore``, ``.stversions`` and
+temporary ``.syncthing.*`` files is excluded from filesystem events and full
+file synchronization.

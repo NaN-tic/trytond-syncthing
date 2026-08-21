@@ -10,9 +10,6 @@ import trytond.config as config
 from trytond.pool import Pool
 from trytond.transaction import Transaction, without_check_access
 
-from trytond.modules.file_sync.sync import Synchronizer
-
-
 SEND_ONLY_URL = config.get('syncthing', 'send_only_url')
 SEND_ONLY_API_KEY = config.get('syncthing', 'send_only_api_key')
 SEND_RECEIVE_URL = config.get('syncthing', 'send_receive_url')
@@ -156,7 +153,8 @@ class SyncthingService:
         database_token = hashlib.sha256(
             database.encode('utf-8')).hexdigest()[:10]
         marker = f'tryton-{database_token}-'
-        synchronizer = Synchronizer(required=True)
+        SyncEntry = Pool().get('file.sync.entry')
+        synchronizer = SyncEntry.get_synchronizer(required=True)
         desired = {
             'sendonly': ({}, {}),
             'sendreceive': ({}, {}),
