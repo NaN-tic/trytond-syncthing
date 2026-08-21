@@ -59,6 +59,21 @@ class Tag(metaclass=PoolMeta):
             Pool().get('syncthing.configuration').queue_synchronize()
 
 
+class SyncEntry(metaclass=PoolMeta):
+    __name__ = 'file.sync.entry'
+
+    @classmethod
+    def __setup__(cls):
+        super().__setup__()
+        cls._file_sync_ignore_patterns = (
+            cls._file_sync_ignore_patterns | {
+                '.stfolder',
+                '.stignore',
+                '.stversions',
+                '.syncthing.*',
+                })
+
+
 class User(metaclass=PoolMeta):
     __name__ = 'res.user'
 
