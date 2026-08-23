@@ -1,7 +1,7 @@
 Syncthing
 =========
 
-This module publishes synchronized Brainbow roots to two Syncthing servers.
+This module publishes synchronized Office roots to two Syncthing servers.
 Read-only users are configured on the Send Only server and read-write users on
 the Send & Receive server.  Configure both REST APIs in ``trytond.conf``::
 

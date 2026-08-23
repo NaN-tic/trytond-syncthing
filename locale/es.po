@@ -2,7 +2,7 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=utf-8\n"
 
-msgctxt "field:brainbow.tag,syncthing:"
+msgctxt "field:office.category,syncthing:"
 msgid "Syncthing"
 msgstr "Syncthing"
 
@@ -31,5 +31,5 @@ msgid "A Syncthing device ID can be registered only once."
 msgstr "Un identificador de dispositivo Syncthing solo se puede registrar una vez."
 
 msgctxt "model:ir.message,text:msg_syncthing_synchronized_root"
-msgid "Syncthing can be enabled only on synchronized root tags."
-msgstr "Syncthing solo se puede activar en las etiquetas raíz sincronizadas."
+msgid "Syncthing can be enabled only on synchronized root categories."
+msgstr "Syncthing solo se puede activar en las categorías raíz sincronizadas."

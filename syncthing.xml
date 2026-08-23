@@ -3,10 +3,10 @@
     <data>
         <record model="syncthing.configuration" id="configuration"/>
 
-        <record model="ir.ui.view" id="view_tag_form">
-            <field name="model">brainbow.tag</field>
-            <field name="inherit" ref="brainbow.view_tag_form"/>
-            <field name="name">tag_form</field>
+        <record model="ir.ui.view" id="view_category_form">
+            <field name="model">office.category</field>
+            <field name="inherit" ref="office.view_category_form"/>
+            <field name="name">category_form</field>
         </record>
         <record model="ir.ui.view" id="view_user_form">
             <field name="model">res.user</field>
@@ -38,7 +38,7 @@
         </record>
         <record model="ir.model.access" id="access_configuration_admin">
             <field name="model">syncthing.configuration</field>
-            <field name="group" ref="brainbow.group_admin"/>
+            <field name="group" ref="office.group_admin"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>

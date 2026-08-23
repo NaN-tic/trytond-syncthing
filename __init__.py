@@ -5,7 +5,7 @@ from . import syncthing
 
 def register():
     Pool.register(
-        syncthing.Tag,
+        syncthing.Category,
         syncthing.SyncEntry,
         syncthing.User,
         syncthing.Group,
