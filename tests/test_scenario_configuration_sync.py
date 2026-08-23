@@ -35,7 +35,7 @@ class TestConfigurationSync(unittest.TestCase):
 
             config = activate_modules('syncthing')
             Attachment = Model.get('ir.attachment', config=config)
-            Tag = Model.get('brainbow.tag', config=config)
+            Category = Model.get('office.category', config=config)
             User = Model.get('res.user', config=config)
 
             reader = User(name='Reader', login='reader')
@@ -43,7 +43,7 @@ class TestConfigurationSync(unittest.TestCase):
             writer = User(name='Writer', login='writer')
             writer.save()
 
-            root = Tag(name='Shared', sync=True, syncthing=True)
+            root = Category(name='Shared', sync=True, syncthing=True)
             root.read_only_users.append(reader)
             root.read_write_users.append(writer)
             root.save()
@@ -59,8 +59,8 @@ class TestConfigurationSync(unittest.TestCase):
                 'Ignored patterns', encoding='utf-8')
             (root_directory / '.syncthing.notes.tmp').write_text(
                 'Temporary file', encoding='utf-8')
-            stale_tag = Tag(name='.stfolder', parent=root)
-            stale_tag.save()
+            stale_category = Category(name='.stfolder', parent=root)
+            stale_category.save()
             with Transaction().start(
                     config.database_name, config.user,
                     context=config.context) as transaction:
@@ -75,9 +75,9 @@ class TestConfigurationSync(unittest.TestCase):
                             ]))
                 synchronizer.synchronize()
                 transaction.commit()
-            stale_tag.reload()
-            self.assertFalse(stale_tag.active)
-            self.assertFalse(Tag.find([('name', '=', '.stversions')]))
+            stale_category.reload()
+            self.assertFalse(stale_category.active)
+            self.assertFalse(Category.find([('name', '=', '.stversions')]))
             self.assertFalse(Attachment.find([
                         ('name', 'in', [
                                 'syncthing-folder-test.txt',

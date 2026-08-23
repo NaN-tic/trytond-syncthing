@@ -7,8 +7,8 @@ from trytond.pyson import Bool, Eval
 from trytond.transaction import Transaction, without_check_access
 
 
-class Tag(metaclass=PoolMeta):
-    __name__ = 'brainbow.tag'
+class Category(metaclass=PoolMeta):
+    __name__ = 'office.category'
 
     syncthing = fields.Boolean(
         "Syncthing",
@@ -22,20 +22,20 @@ class Tag(metaclass=PoolMeta):
         return False
 
     @classmethod
-    def validate_fields(cls, tags, field_names):
-        super().validate_fields(tags, field_names)
+    def validate_fields(cls, categories, field_names):
+        super().validate_fields(categories, field_names)
         if not field_names or field_names & {'parent', 'sync', 'syncthing'}:
-            for tag in tags:
-                if tag.syncthing and (tag.parent or not tag.sync):
+            for category in categories:
+                if category.syncthing and (category.parent or not category.sync):
                     raise UserError(gettext(
                             'syncthing.msg_syncthing_synchronized_root'))
 
     @classmethod
     def create(cls, vlist):
-        tags = super().create(vlist)
+        categories = super().create(vlist)
         if not Transaction().context.get('syncthing_skip_queue'):
             Pool().get('syncthing.configuration').queue_synchronize()
-        return tags
+        return categories
 
     @classmethod
     def write(cls, *args):
@@ -53,8 +53,8 @@ class Tag(metaclass=PoolMeta):
             Pool().get('syncthing.configuration').queue_synchronize()
 
     @classmethod
-    def delete(cls, tags):
-        super().delete(tags)
+    def delete(cls, categories):
+        super().delete(categories)
         if not Transaction().context.get('syncthing_skip_queue'):
             Pool().get('syncthing.configuration').queue_synchronize()
 

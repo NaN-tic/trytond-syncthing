@@ -136,9 +136,9 @@ class SyncthingService:
             self._synchronize()
 
     def _synchronize(self):
-        Tag = Pool().get('brainbow.tag')
+        Category = Pool().get('office.category')
         Device = Pool().get('syncthing.device')
-        roots = Tag.search([
+        roots = Category.search([
                 ('parent', '=', None),
                 ('active', '=', True),
                 ('sync', '=', True),
@@ -163,7 +163,7 @@ class SyncthingService:
         for root in roots:
             read_write, read_only = root.access_users()
             folder_id = f'{marker}{root.id}'
-            path = synchronizer._tag_directory(root, root)
+            path = synchronizer._category_directory(root, root)
             for role, users in [
                     ('sendonly', read_only),
                     ('sendreceive', read_write),
