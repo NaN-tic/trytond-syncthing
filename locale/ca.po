@@ -10,6 +10,14 @@ msgctxt "field:res.user,syncthing_devices:"
 msgid "Syncthing Devices"
 msgstr "Dispositius Syncthing"
 
+msgctxt "field:res.user,syncthing_read_only_device_id:"
+msgid "Read-only Syncthing Device ID"
+msgstr "Identificador del dispositiu Syncthing de només lectura"
+
+msgctxt "field:res.user,syncthing_read_write_device_id:"
+msgid "Read-write Syncthing Device ID"
+msgstr "Identificador del dispositiu Syncthing de lectura i escriptura"
+
 msgctxt "field:syncthing.device,addresses:"
 msgid "Addresses"
 msgstr "Adreces"

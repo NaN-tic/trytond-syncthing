@@ -6,10 +6,11 @@ from unittest.mock import patch
 
 from proteus import Model
 import trytond.config as tryton_config
+from trytond.model.modelstorage import AccessError
 from trytond.pool import Pool
 from trytond.tests.test_tryton import drop_db
 from trytond.tests.tools import activate_modules
-from trytond.transaction import Transaction
+from trytond.transaction import Transaction, check_access
 
 from trytond.modules.syncthing.service import (
     SyncthingClient, SyncthingService)
@@ -90,21 +91,23 @@ class TestConfigurationSync(unittest.TestCase):
                     config.database_name, reader.id,
                     context=config.context) as transaction:
                 Device = Pool(config.database_name).get('syncthing.device')
-                Device.create([{
+                reader_device, = Device.create([{
                             'name': 'Reader laptop',
                             'device_id': 'READER-DEVICE-ID',
                             'addresses': 'dynamic',
                             }])
+                reader_device_id = reader_device.id
                 transaction.commit()
             with Transaction().start(
                     config.database_name, writer.id,
                     context=config.context) as transaction:
                 Device = Pool(config.database_name).get('syncthing.device')
-                Device.create([{
+                writer_device, = Device.create([{
                             'name': 'Writer workstation',
                             'device_id': 'WRITER-DEVICE-ID',
                             'addresses': 'dynamic\ntcp://writer.test:22000',
                             }])
+                writer_device_id = writer_device.id
                 transaction.commit()
 
             with Transaction().start(
@@ -166,8 +169,64 @@ class TestConfigurationSync(unittest.TestCase):
                     config.database_name, config.user,
                     context=config.context):
                 ServerUser = Pool(config.database_name).get('res.user')
-                self.assertIn(
-                    'syncthing_devices', ServerUser._preferences_fields)
+                self.assertTrue({
+                        'syncthing_read_only_device_id',
+                        'syncthing_read_write_device_id',
+                        'syncthing_devices',
+                        } <= set(ServerUser._preferences_fields))
+
+            def server_status(client, method, endpoint, payload=None):
+                self.assertEqual((method, endpoint),
+                    ('GET', '/rest/system/status'))
+                return {
+                    'myID': {
+                        'http://send-only.test': 'READ-ONLY-SERVER-ID',
+                        'http://send-receive.test': 'READ-WRITE-SERVER-ID',
+                        }[client.url],
+                    }
+
+            with patch.multiple(
+                    'trytond.modules.syncthing.service',
+                    SEND_ONLY_URL='http://send-only.test',
+                    SEND_ONLY_API_KEY='read-key',
+                    SEND_RECEIVE_URL='http://send-receive.test',
+                    SEND_RECEIVE_API_KEY='write-key'), \
+                    patch.object(
+                        SyncthingClient, 'request', server_status):
+                with Transaction().start(
+                        config.database_name, reader.id,
+                        context=config.context):
+                    pool = Pool(config.database_name)
+                    Device = pool.get('syncthing.device')
+                    ServerUser = pool.get('res.user')
+                    preferences = ServerUser.get_preferences()
+                    self.assertEqual(
+                        preferences['syncthing_devices'],
+                        [reader_device_id])
+                    self.assertEqual(
+                        preferences['syncthing_read_only_device_id'],
+                        'READ-ONLY-SERVER-ID')
+                    self.assertEqual(
+                        preferences['syncthing_read_write_device_id'],
+                        'READ-WRITE-SERVER-ID')
+                    with check_access():
+                        own_device, = Device.read(
+                            [reader_device_id], ['device_id'])
+                        self.assertEqual(
+                            own_device['device_id'], 'READER-DEVICE-ID')
+                        with self.assertRaises(AccessError):
+                            Device.read([writer_device_id], ['device_id'])
+            with Transaction().start(
+                    config.database_name, writer.id,
+                    context=config.context):
+                Device = Pool(config.database_name).get('syncthing.device')
+                with check_access():
+                    own_device, = Device.read(
+                        [writer_device_id], ['device_id'])
+                    self.assertEqual(
+                        own_device['device_id'], 'WRITER-DEVICE-ID')
+                    with self.assertRaises(AccessError):
+                        Device.read([reader_device_id], ['device_id'])
 
             state = {
                 '/rest/config/devices': [
