@@ -1,8 +1,12 @@
 <?xml version="1.0"?>
 <data>
     <xpath expr="/form/notebook/page[@id='preferences']" position="after">
-        <page string="Syncthing" id="syncthing" col="1">
-            <field name="syncthing_devices"/>
+        <page string="Syncthing" id="syncthing" col="2">
+            <label name="syncthing_read_only_device_id"/>
+            <field name="syncthing_read_only_device_id"/>
+            <label name="syncthing_read_write_device_id"/>
+            <field name="syncthing_read_write_device_id"/>
+            <field name="syncthing_devices" colspan="2"/>
         </page>
     </xpath>
 </data>

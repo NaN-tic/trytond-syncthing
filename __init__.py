@@ -9,6 +9,7 @@ def register():
         syncthing.SyncEntry,
         syncthing.User,
         syncthing.Group,
+        syncthing.Rule,
         syncthing.Device,
         syncthing.Configuration,
         module='syncthing', type_='model')

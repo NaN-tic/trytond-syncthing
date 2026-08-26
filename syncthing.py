@@ -77,13 +77,49 @@ class SyncEntry(metaclass=PoolMeta):
 class User(metaclass=PoolMeta):
     __name__ = 'res.user'
 
+    syncthing_read_only_device_id = fields.Function(
+        fields.Char("Read-only Syncthing Device ID"),
+        'get_syncthing_server_device_ids')
+    syncthing_read_write_device_id = fields.Function(
+        fields.Char("Read-write Syncthing Device ID"),
+        'get_syncthing_server_device_ids')
     syncthing_devices = fields.One2Many(
         'syncthing.device', 'user', "Syncthing Devices")
 
     @classmethod
     def __setup__(cls):
         super().__setup__()
-        cls._preferences_fields.append('syncthing_devices')
+        cls._preferences_fields.extend([
+                'syncthing_read_only_device_id',
+                'syncthing_read_write_device_id',
+                'syncthing_devices',
+                ])
+
+    @classmethod
+    def get_syncthing_server_device_ids(cls, users, names):
+        from .service import (
+            SEND_ONLY_API_KEY, SEND_ONLY_URL, SEND_RECEIVE_API_KEY,
+            SEND_RECEIVE_URL, SyncthingClient, SyncthingError)
+
+        servers = {
+            'syncthing_read_only_device_id': (
+                SEND_ONLY_URL, SEND_ONLY_API_KEY),
+            'syncthing_read_write_device_id': (
+                SEND_RECEIVE_URL, SEND_RECEIVE_API_KEY),
+            }
+        result = {name: {user.id: None for user in users} for name in names}
+        for name in names:
+            url, api_key = servers[name]
+            if not url or not api_key:
+                continue
+            try:
+                device_id = SyncthingClient(url, api_key).request(
+                    'GET', '/rest/system/status')['myID']
+            except (KeyError, SyncthingError):
+                continue
+            for user in users:
+                result[name][user.id] = device_id
+        return result
 
     @classmethod
     def write(cls, *args):
@@ -107,6 +143,24 @@ class Group(metaclass=PoolMeta):
         if (not Transaction().context.get('syncthing_skip_queue')
                 and any({'users'} & set(values) for _, values in pairs)):
             Pool().get('syncthing.configuration').queue_synchronize()
+
+
+class Rule(metaclass=PoolMeta):
+    __name__ = 'ir.rule'
+
+    @classmethod
+    def _get_context(cls, model_name):
+        context = super()._get_context(model_name)
+        if model_name == 'syncthing.device':
+            context['user_id'] = Transaction().user
+        return context
+
+    @classmethod
+    def _get_cache_key(cls, model_names):
+        key = super()._get_cache_key(model_names)
+        if 'syncthing.device' in model_names:
+            key = (*key, Transaction().user)
+        return key
 
 
 class Device(DeactivableMixin, ModelSQL, ModelView):
