@@ -110,22 +110,27 @@ class User(metaclass=PoolMeta):
     @classmethod
     def get_syncthing_server_device_ids(cls, users, names):
         from .service import (
-            SEND_ONLY_API_KEY, SEND_ONLY_URL, SEND_RECEIVE_API_KEY,
-            SEND_RECEIVE_URL, SyncthingClient, SyncthingError)
+            SEND_ONLY_API_KEY, SEND_ONLY_CERTIFICATE_FINGERPRINT,
+            SEND_ONLY_URL, SEND_RECEIVE_API_KEY,
+            SEND_RECEIVE_CERTIFICATE_FINGERPRINT, SEND_RECEIVE_URL,
+            SyncthingClient, SyncthingError)
 
         servers = {
             'syncthing_read_only_device_id': (
-                SEND_ONLY_URL, SEND_ONLY_API_KEY),
+                SEND_ONLY_URL, SEND_ONLY_API_KEY,
+                SEND_ONLY_CERTIFICATE_FINGERPRINT),
             'syncthing_read_write_device_id': (
-                SEND_RECEIVE_URL, SEND_RECEIVE_API_KEY),
+                SEND_RECEIVE_URL, SEND_RECEIVE_API_KEY,
+                SEND_RECEIVE_CERTIFICATE_FINGERPRINT),
             }
         result = {name: {user.id: None for user in users} for name in names}
         for name in names:
-            url, api_key = servers[name]
+            url, api_key, fingerprint = servers[name]
             if not url or not api_key:
                 continue
             try:
-                device_id = SyncthingClient(url, api_key).request(
+                device_id = SyncthingClient(
+                    url, api_key, fingerprint).request(
                     'GET', '/rest/system/status')['myID']
             except (KeyError, SyncthingError):
                 continue

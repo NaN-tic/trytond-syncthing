@@ -8,11 +8,33 @@ the Send & Receive server.  Configure both REST APIs in ``trytond.conf``::
     [syncthing]
     send_only_url = https://syncthing-ro.example:8384
     send_only_api_key = secret
+    # send_only_certificate_fingerprint = sha256:AA:BB:...
     send_receive_url = https://syncthing-rw.example:8384
     send_receive_api_key = secret
+    # send_receive_certificate_fingerprint = sha256:AA:BB:...
     timeout = 10
     verify_ssl = true
     # ca_file = /etc/ssl/private/syncthing-ca.pem
+
+By default HTTPS certificates are verified against the system trust store, or
+against ``ca_file`` when configured.  Set ``verify_ssl = false`` to accept any
+certificate.  As a safer alternative for self-signed certificates, configure
+the SHA-256 fingerprint independently for each server.  A configured
+fingerprint takes precedence over CA verification and is checked before the
+API key is sent.
+
+When ``verify_ssl`` is disabled, the server fingerprint is logged as a warning
+on the first request made by each client, without sending the API key while the
+certificate is inspected.
+
+When CA verification fails, the server fingerprint is logged without sending
+the API key.  It can then be configured through ``trytond.conf`` or through
+the corresponding environment variable::
+
+    TRYTOND_SYNCTHING__SEND_ONLY_CERTIFICATE_FINGERPRINT=sha256:AA:BB:...
+    TRYTOND_SYNCTHING__SEND_RECEIVE_CERTIFICATE_FINGERPRINT=sha256:AA:BB:...
+
+Restart every Tryton web and queue worker process after changing these values.
 
 Users register their device ID, display name and optional addresses from their
 Tryton preferences.  Changes enqueue an idempotent reconciliation of managed
