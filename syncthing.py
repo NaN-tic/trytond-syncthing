@@ -96,6 +96,18 @@ class User(metaclass=PoolMeta):
                 ])
 
     @classmethod
+    def get_preferences_fields_view(cls):
+        # The preferences view makes fields writable even when Function fields
+        # have no setter, so restore their natural read-only state.
+        view = super().get_preferences_fields_view()
+        for name in {
+                'syncthing_read_only_device_id',
+                'syncthing_read_write_device_id',
+                }:
+            view['fields'][name]['readonly'] = True
+        return view
+
+    @classmethod
     def get_syncthing_server_device_ids(cls, users, names):
         from .service import (
             SEND_ONLY_API_KEY, SEND_ONLY_URL, SEND_RECEIVE_API_KEY,
