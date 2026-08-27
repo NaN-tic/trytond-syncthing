@@ -174,6 +174,13 @@ class TestConfigurationSync(unittest.TestCase):
                         'syncthing_read_write_device_id',
                         'syncthing_devices',
                         } <= set(ServerUser._preferences_fields))
+                preferences_view = ServerUser.get_preferences_fields_view()
+                for name in {
+                        'syncthing_read_only_device_id',
+                        'syncthing_read_write_device_id',
+                        }:
+                    self.assertTrue(
+                        preferences_view['fields'][name]['readonly'])
 
             def server_status(client, method, endpoint, payload=None):
                 self.assertEqual((method, endpoint),
